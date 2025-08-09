@@ -1,0 +1,9 @@
+{
+  "build": {
+    "builder": "nixpacks"
+  },
+  "deploy": {
+    "startCommand": "cd apps/api && npm start",
+    "healthcheckPath": "/health"
+  }
+}
