@@ -1,78 +1,57 @@
+
 # Copilot Instructions for EazyQue Retail Billing Platform
 
-<!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
+## Project Architecture & Structure
 
-## Project Overview
+- **Monorepo**: All code is in a monorepo, organized by `/apps` (web, api, mobile) and `/packages` (database, gst-utils, shared).
+- **Web App** (`/apps/web`): Next.js 15, TypeScript, Tailwind CSS. Contains admin dashboard, POS, analytics, and inventory UIs. Uses server components and React Query for data fetching.
+- **API** (`/apps/api`): Node.js + Express, PostgreSQL (Prisma ORM). Implements RESTful endpoints for products, orders, inventory, analytics, and authentication. JWT-based auth, RBAC enforced.
+- **Mobile App** (`/apps/mobile`): React Native, TypeScript. Customer self-checkout and barcode scanning.
+- **Shared Packages**: `/packages/shared` (types, utils), `/packages/gst-utils` (GST/HSN logic), `/packages/database` (Prisma schema).
 
-This is a full-stack retail billing and self-checkout platform built for Indian retailers. The platform consists of:
+## Developer Workflows
 
-1. **Web Application (Next.js)**: Admin dashboard and POS system for shopkeepers
-2. **Mobile Application (React Native)**: Customer self-checkout functionality  
-3. **Backend Services**: Microservices architecture with PostgreSQL database
-4. **Shared Libraries**: Common utilities, types, and business logic
+- **Build & Start (dev)**: `npm run dev` (runs both web and api via `concurrently`).
+- **Test All**: `./test-suite.sh` (integration), `cd apps/web && npm test` (frontend), Playwright for E2E.
+- **Seed Data**: `node scripts/seed-test-products.ts` or `seed-barcode-test-products.ts`.
+- **API/DB Health**: `curl http://localhost:5001/health` (API), `curl http://localhost:3000` (web).
+- **Regression Reports**: See `/regression-reports/` for markdown and HTML summaries.
 
-## Tech Stack
+## Key Conventions & Patterns
 
-- **Frontend Web**: Next.js 15, TypeScript, Tailwind CSS, React
-- **Mobile**: React Native with TypeScript
-- **Backend**: Node.js, Express, PostgreSQL, Prisma ORM
-- **Authentication**: NextAuth.js, JWT
-- **Payments**: UPI, Razorpay, Stripe (for cards)
-- **Real-time**: Socket.io for live synchronization
-- **Deployment**: Vercel (frontend), Railway/Supabase (backend)
+- **TypeScript strict mode** everywhere. Prefer explicit types and interfaces from `/packages/shared`.
+- **GST/HSN Compliance**: All billing logic must use `/packages/gst-utils` for tax and HSN validation.
+- **Real-time**: Use Socket.io for live updates (orders, inventory, analytics). See `/apps/api/src/routes/analytics.ts` and `/apps/web/src/app/enhanced-dashboard/page.tsx` for examples.
+- **API Proxying**: Next.js API routes proxy to backend to avoid CORS and centralize auth. See `/apps/web/src/app/api/`.
+- **State Management**: Use Zustand for client state, React Query for server state.
+- **Error Handling**: Always return structured error objects from API. Use error boundaries in React.
+- **Testing**: All features require E2E and regression coverage. See `/test-suite.sh`, `/comprehensive-regression-test.js`, `/ENHANCED_ANALYTICS_IMPLEMENTATION_COMPLETE.md`.
 
-## Code Standards
+## Integration & Data Flow
 
-- Use TypeScript with strict mode enabled
-- Follow React and Next.js best practices
-- Implement responsive design with Tailwind CSS
-- Use server components where possible in Next.js
-- Implement proper error handling and loading states
-- Follow Indian GST compliance requirements
-- Use Prisma for database operations
-- Implement real-time features with Socket.io
+- **Frontend ↔ API**: All data flows through REST endpoints. Use OpenAPI docs for contract.
+- **Database**: Prisma migrations in `/packages/database`. Always run `prisma generate` after schema changes.
+- **Payments**: UPI is primary, with Razorpay/Stripe for cards. Payment logic in `/apps/api/src/routes/payments.ts`.
+- **Localization**: All UI and currency in INR (₹), support for Hindi/regional languages.
 
-## Indian Market Specifics
+## Examples & References
 
-- **GST Compliance**: All calculations must include GST/CGST/SGST/IGST
-- **HSN Codes**: Validate against government HSN database
-- **UPI Integration**: Primary payment method for Indian market
-- **Multi-language**: Support Hindi and regional languages
-- **Currency**: All amounts in INR (₹)
-- **Mobile-first**: Design for mobile and tablet devices primarily
+- **Analytics**: `/apps/web/src/app/enhanced-dashboard/page.tsx`, `/apps/api/src/routes/analytics.ts`
+- **Testing**: `/TESTING_REPORT.md`, `/COMPREHENSIVE_AUTOMATION_TESTING_REPORT.md`
+- **Roadmap**: `/NEXT_FEATURES_ROADMAP.md`
+- **POS/Barcode**: `/apps/web/src/app/pos/`, `/apps/api/src/routes/barcode.ts`
 
-## Architecture Patterns
+## Security & Compliance
 
-- **Monorepo Structure**: Organized by applications and shared packages
-- **API Design**: RESTful APIs with OpenAPI documentation
-- **State Management**: Zustand for client state, React Query for server state
-- **Database**: Normalized PostgreSQL schema with proper indexing
-- **Security**: Implement RBAC, data encryption, PCI DSS compliance
-- **Performance**: Optimize for Indian network conditions and devices
+- Enforce JWT auth and RBAC on all endpoints.
+- Validate and sanitize all user input (see `/apps/api/src/middleware/validate.ts`).
+- PCI DSS for payments, OWASP for web security.
+- All calculations must be GST compliant and use HSN codes.
 
-## Key Features to Implement
+## Priorities for AI Agents
 
-1. **POS System**: Barcode scanning, inventory management, billing
-2. **Self-Checkout**: Customer mobile app with barcode scanning
-3. **Inventory Management**: Real-time stock tracking, expiry management
-4. **GST Reporting**: Automated GSTR-1, GSTR-3B generation
-5. **Payment Processing**: Multi-modal payment support
-6. **Customer Management**: Loyalty programs, analytics
-7. **Real-time Sync**: Live updates between web and mobile platforms
-
-## Security Considerations
-
-- Implement proper authentication and authorization
-- Validate all user inputs and sanitize data
-- Use HTTPS for all communications
-- Implement rate limiting and DDoS protection
-- Follow OWASP security guidelines
-- Ensure PCI DSS compliance for payment processing
-
-When writing code, prioritize:
 1. Type safety and error handling
-2. Performance optimization for mobile devices
-3. Real-time synchronization capabilities
-4. GST compliance and Indian market requirements
-5. Scalable architecture patterns
-6. User experience optimization for retail environments
+2. Real-time sync and mobile performance
+3. GST/HSN compliance and Indian market requirements
+4. Scalable, modular code (prefer shared packages)
+5. Regression and E2E test coverage for all features
