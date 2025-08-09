@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EazyQue Barcode Test Sheet</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 20px;
+            background: white;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+        }
+        .barcode-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin: 20px 0;
+        }
+        .barcode-item {
+            border: 2px solid #333;
+            padding: 20px;
+            text-align: center;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .barcode-number {
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 10px 0;
+            color: #000;
+        }
+        .product-name {
+            font-size: 14px;
+            color: #333;
+            margin: 5px 0;
+        }
+        .price {
+            font-size: 16px;
+            color: #007700;
+            font-weight: bold;
+        }
+        .barcode-visual {
+            margin: 15px 0;
+            font-family: 'Libre Barcode 128', cursive;
+            font-size: 40px;
+            letter-spacing: 1px;
+        }
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+        @media print {
+            body { margin: 0; }
+            .instructions { page-break-inside: avoid; }
+            .barcode-grid { page-break-inside: avoid; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <h1>🛒 EazyQue Barcode Test Sheet</h1>
+        <p><strong>For Dynamic Barcode Scanner Testing</strong></p>
+        <p>Date: August 9, 2025 | Environment: Development</p>
+    </div>
+
+    <div class="instructions">
+        <h3>📋 Testing Instructions:</h3>
+        <ol>
+            <li>Open <strong>http://localhost:3000/pos</strong> in your browser</li>
+            <li>Click the <strong>"Scan Barcode"</strong> button</li>
+            <li>Allow camera permissions when prompted</li>
+            <li>Point your camera at any barcode below</li>
+            <li>Verify the product appears and gets added to cart</li>
+        </ol>
+        <p><strong>💡 Tip:</strong> You can also display this page on your phone and scan from the screen!</p>
+    </div>
+
+    <div class="barcode-grid">
+        <div class="barcode-item">
+            <div class="product-name">🥛 Amul Milk 500ml</div>
+            <div class="barcode-visual">|||||| ||| |||| |||</div>
+            <div class="barcode-number">8904552002344</div>
+            <div class="price">₹35.00 | DAIRY</div>
+        </div>
+
+        <div class="barcode-item">
+            <div class="product-name">🍜 Maggi Noodles 70g</div>
+            <div class="barcode-visual">|||| ||| || |||||| </div>
+            <div class="barcode-number">8901030826829</div>
+            <div class="price">₹15.00 | GROCERIES</div>
+        </div>
+
+        <div class="barcode-item">
+            <div class="product-name">🥔 Lays Chips 25g</div>
+            <div class="barcode-visual">||| |||| ||| || ||||</div>
+            <div class="barcode-number">8901030765432</div>
+            <div class="price">₹12.00 | SNACKS</div>
+        </div>
+
+        <div class="barcode-item">
+            <div class="product-name">🥤 Pepsi 600ml</div>
+            <div class="barcode-visual">|||| || ||||| || ||</div>
+            <div class="barcode-number">8901030876543</div>
+            <div class="price">₹40.00 | BEVERAGES</div>
+        </div>
+
+        <div class="barcode-item">
+            <div class="product-name">🍪 Parle-G Biscuit 100g</div>
+            <div class="barcode-visual">|| ||||| || ||| ||||</div>
+            <div class="barcode-number">8901063105836</div>
+            <div class="price">₹10.00 | SNACKS</div>
+        </div>
+
+        <div class="barcode-item">
+            <div class="product-name">🍎 Apple 1kg</div>
+            <div class="barcode-visual">|| || ||| ||| || |||</div>
+            <div class="barcode-number">2012345678901</div>
+            <div class="price">₹150.00 | FRUITS</div>
+        </div>
+
+        <div class="barcode-item">
+            <div class="product-name">🧴 Ariel Detergent 1kg</div>
+            <div class="barcode-visual">||||| || || ||| ||||</div>
+            <div class="barcode-number">8901030987654</div>
+            <div class="price">₹220.00 | HOUSEHOLD</div>
+        </div>
+
+        <div class="barcode-item">
+            <div class="product-name">🦷 Colgate Toothpaste 100g</div>
+            <div class="barcode-visual">|| ||| |||| ||| || |</div>
+            <div class="barcode-number">8901030456789</div>
+            <div class="price">₹55.00 | PERSONAL_CARE</div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>🔍 Alternative Testing Methods:</h3>
+        <ul>
+            <li><strong>Mobile Apps:</strong> Use any barcode generator app to create these codes</li>
+            <li><strong>Online Generators:</strong> Copy barcodes to online EAN-13 generators</li>
+            <li><strong>Print Testing:</strong> Print this page and scan physical barcodes</li>
+            <li><strong>Screen Testing:</strong> Display on another device and scan the screen</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>🛒 EazyQue Retail Platform | Barcode Scanner Test Environment</p>
+        <p>Generated: August 9, 2025 | For internal testing use only</p>
+    </div>
+
+    <script>
+        // Make barcodes clickable to copy to clipboard
+        document.querySelectorAll('.barcode-number').forEach(element => {
+            element.style.cursor = 'pointer';
+            element.title = 'Click to copy barcode';
+            element.addEventListener('click', function() {
+                navigator.clipboard.writeText(this.textContent).then(() => {
+                    const original = this.textContent;
+                    this.textContent = '📋 Copied!';
+                    this.style.color = '#007700';
+                    setTimeout(() => {
+                        this.textContent = original;
+                        this.style.color = '#000';
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

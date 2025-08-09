@@ -1,0 +1,80 @@
+# Page snapshot
+
+```yaml
+- heading "Join EazyQue" [level=1]
+- paragraph: Create your account and start managing your retail business
+- button "🏪 Shop Owner Active"
+- button "👤 Employee"
+- text: 👤
+- heading "Personal Information" [level=3]
+- text: (Required for all users) Full Name *
+- textbox "Full Name *"
+- text: Email Address *
+- textbox "Email Address *"
+- text: Phone Number *
+- textbox "Phone Number *"
+- text: Password *
+- textbox "Password *"
+- text: Confirm Password *
+- textbox "Confirm Password *"
+- text: 🏢
+- heading "Shop Information" [level=3]
+- text: (Business details for shop owners) Shop Name *
+- textbox "Shop Name *"
+- text: GST Number *
+- textbox "GST Number *"
+- text: PAN Number *
+- textbox "PAN Number *"
+- text: Shop Phone
+- textbox "Shop Phone"
+- text: Shop Email (optional - will use your email if empty)
+- textbox "Shop Email (optional - will use your email if empty)"
+- heading "📍 Shop Address (Complete address required)" [level=4]
+- text: Address Line 1 *
+- textbox "Address Line 1 *"
+- text: Address Line 2
+- textbox "Address Line 2"
+- text: City *
+- textbox "City *"
+- text: State *
+- combobox "State *":
+  - option "Select state" [selected]
+  - option "Andhra Pradesh"
+  - option "Arunachal Pradesh"
+  - option "Assam"
+  - option "Bihar"
+  - option "Chhattisgarh"
+  - option "Goa"
+  - option "Gujarat"
+  - option "Haryana"
+  - option "Himachal Pradesh"
+  - option "Jharkhand"
+  - option "Karnataka"
+  - option "Kerala"
+  - option "Madhya Pradesh"
+  - option "Maharashtra"
+  - option "Manipur"
+  - option "Meghalaya"
+  - option "Mizoram"
+  - option "Nagaland"
+  - option "Odisha"
+  - option "Punjab"
+  - option "Rajasthan"
+  - option "Sikkim"
+  - option "Tamil Nadu"
+  - option "Telangana"
+  - option "Tripura"
+  - option "Uttar Pradesh"
+  - option "Uttarakhand"
+  - option "West Bengal"
+  - option "Delhi"
+  - option "Puducherry"
+- text: Pincode *
+- textbox "Pincode *"
+- button "🚀 Create Account"
+- paragraph:
+  - text: Already have an account?
+  - link "Sign in here":
+    - /url: /login
+- alert
+```

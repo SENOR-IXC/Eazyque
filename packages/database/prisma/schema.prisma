@@ -1,0 +1,377 @@
+// This is your Prisma schema file for EazyQue Retail Platform
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ User Management ============
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  phone     String   @unique
+  name      String
+  role      UserRole @default(CUSTOMER)
+  password  String?  // Optional for social logins
+  shopId    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  shop              Shop?               @relation(fields: [shopId], references: [id])
+  ordersAsCashier   Order[]             @relation("CashierOrders")
+  notifications     Notification[]
+  loyaltyPrograms   CustomerLoyalty[]
+  auditLogs         AuditLog[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  SHOP_OWNER
+  CASHIER
+  CUSTOMER
+}
+
+// ============ Shop Management ============
+model Shop {
+  id           String   @id @default(cuid())
+  name         String
+  gstNumber    String   @unique
+  panNumber    String   @unique
+  phone        String
+  email        String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  pincode      String
+  country      String   @default("India")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  users         User[]
+  products      Product[]
+  inventory     Inventory[]
+  orders        Order[]
+  customers     Customer[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  @@map("shops")
+}
+
+// ============ Product Management ============
+model Product {
+  id                String              @id @default(cuid())
+  name              String
+  description       String?
+  barcode           String?             @unique
+  hsnCode           String
+  category          ProductCategory
+  unitOfMeasurement UnitOfMeasurement
+  basePrice         Float
+  sellingPrice      Float
+  gstRate           Float
+  imageUrl          String?
+  isActive          Boolean             @default(true)
+  shopId            String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  // Relations
+  shop       Shop          @relation(fields: [shopId], references: [id])
+  inventory  Inventory[]
+  orderItems OrderItem[]
+
+  @@index([shopId, isActive]) // Index for active products by shop
+  @@index([shopId, category]) // Index for category queries
+  @@index([barcode]) // Index for barcode lookups
+  @@map("products")
+}
+
+enum ProductCategory {
+  GROCERIES
+  DAIRY
+  VEGETABLES
+  FRUITS
+  BEVERAGES
+  SNACKS
+  PERSONAL_CARE
+  HOUSEHOLD
+  OTHER
+}
+
+enum UnitOfMeasurement {
+  KG
+  GRAM
+  LITER
+  ML
+  PIECE
+  PACK
+  BOX
+}
+
+// ============ Inventory Management ============
+model Inventory {
+  id             String    @id @default(cuid())
+  productId      String
+  quantity       Float
+  minStockLevel  Float
+  maxStockLevel  Float
+  batchNumber    String?
+  expiryDate     DateTime?
+  costPrice      Float
+  lastUpdated    DateTime  @default(now())
+  shopId         String
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id])
+  shop    Shop    @relation(fields: [shopId], references: [id])
+
+  @@unique([productId, shopId])
+  @@index([shopId, quantity]) // Index for low stock queries
+  @@index([shopId, lastUpdated]) // Index for recent updates
+  @@map("inventory")
+}
+
+// ============ Customer Management ============
+model Customer {
+  id           String   @id @default(cuid())
+  name         String
+  phone        String
+  email        String?
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  state        String?
+  pincode      String?
+  loyaltyPoints Int     @default(0)
+  totalSpent   Float    @default(0)
+  isActive     Boolean  @default(true)
+  shopId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  shop            Shop              @relation(fields: [shopId], references: [id])
+  orders          Order[]           @relation("CustomerOrders")
+  loyaltyPrograms CustomerLoyalty[]
+
+  @@unique([phone, shopId])
+  @@map("customers")
+}
+
+model CustomerLoyalty {
+  id         String   @id @default(cuid())
+  customerId String
+  userId     String
+  points     Int
+  earnedAt   DateTime @default(now())
+  expiresAt  DateTime?
+  isRedeemed Boolean  @default(false)
+
+  // Relations
+  customer Customer @relation(fields: [customerId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@map("customer_loyalty")
+}
+
+// ============ Order Management ============
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  customerId      String?
+  customerName    String
+  customerPhone   String?
+  shopId          String
+  cashierId       String?
+  subtotal        Float
+  taxAmount       Float
+  discountAmount  Float         @default(0)
+  totalAmount     Float
+  status          OrderStatus   @default(PENDING)
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+  isDelivery      Boolean       @default(false)
+  deliveryAddress String?
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  shop     Shop        @relation(fields: [shopId], references: [id])
+  customer Customer?   @relation("CustomerOrders", fields: [customerId], references: [id])
+  cashier  User?       @relation("CashierOrders", fields: [cashierId], references: [id])
+  items    OrderItem[]
+  payments Payment[]
+
+  @@index([shopId, status]) // Index for status queries
+  @@index([shopId, createdAt]) // Index for date-based queries
+  @@index([shopId, status, createdAt]) // Composite index for dashboard queries
+  @@map("orders")
+}
+
+model OrderItem {
+  id             String @id @default(cuid())
+  orderId        String
+  productId      String
+  productName    String // Denormalized for historical records
+  quantity       Float
+  unitPrice      Float
+  totalPrice     Float
+  taxAmount      Float
+  discountAmount Float  @default(0)
+
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CARD
+  WALLET
+  SPLIT
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+// ============ Payment Management ============
+model Payment {
+  id                String        @id @default(cuid())
+  orderId           String
+  amount            Float
+  method            PaymentMethod
+  status            PaymentStatus @default(PENDING)
+  transactionId     String?       @unique
+  gatewayResponse   Json?
+  processedAt       DateTime?
+  createdAt         DateTime      @default(now())
+
+  // Relations
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("payments")
+}
+
+// ============ HSN Code Management ============
+model HSNCode {
+  id          String  @id @default(cuid())
+  code        String  @unique
+  description String
+  gstRate     Float
+  chapter     String
+  section     String
+  isActive    Boolean @default(true)
+
+  @@map("hsn_codes")
+}
+
+// ============ Notification System ============
+model Notification {
+  id       String           @id @default(cuid())
+  type     NotificationType
+  title    String
+  message  String
+  userId   String
+  shopId   String?
+  isRead   Boolean          @default(false)
+  metadata Json?
+  createdAt DateTime        @default(now())
+
+  // Relations
+  user User  @relation(fields: [userId], references: [id])
+  shop Shop? @relation(fields: [shopId], references: [id])
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  ORDER_PLACED
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  LOW_STOCK
+  SYSTEM_ALERT
+  PROMOTION
+}
+
+// ============ Audit Log ============
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  shopId    String?
+  action    String
+  resource  String
+  resourceId String?
+  oldValues Json?
+  newValues Json?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User  @relation(fields: [userId], references: [id])
+  shop Shop? @relation(fields: [shopId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// ============ Tax Records ============
+model TaxRecord {
+  id              String   @id @default(cuid())
+  orderId         String
+  hsnCode         String
+  taxableAmount   Float
+  cgstRate        Float    @default(0)
+  cgstAmount      Float    @default(0)
+  sgstRate        Float    @default(0)
+  sgstAmount      Float    @default(0)
+  igstRate        Float    @default(0)
+  igstAmount      Float    @default(0)
+  cessRate        Float    @default(0)
+  cessAmount      Float    @default(0)
+  totalTaxAmount  Float
+  createdAt       DateTime @default(now())
+
+  @@map("tax_records")
+}
+
+// ============ App Settings ============
+model AppSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  shopId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("app_settings")
+}

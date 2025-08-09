@@ -1,0 +1,6 @@
+{
+  "/enhanced-dashboard-demo/page": "app/enhanced-dashboard-demo/page.js",
+  "/enhanced-dashboard-working/page": "app/enhanced-dashboard-working/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/login/page": "app/login/page.js"
+}
