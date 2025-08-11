@@ -8,10 +8,10 @@
   "/api/orders/route": "app/api/orders/route.js",
   "/api/inventory/route": "app/api/inventory/route.js",
   "/api/products/route": "app/api/products/route.js",
+  "/api/shops/public/route": "app/api/shops/public/route.js",
   "/api/products/barcode/[barcode]/route": "app/api/products/barcode/[barcode]/route.js",
   "/api/shops/signup/route": "app/api/shops/signup/route.js",
   "/api/shops/route": "app/api/shops/route.js",
-  "/api/shops/public/route": "app/api/shops/public/route.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/enhanced-dashboard-demo/page": "app/enhanced-dashboard-demo/page.js",
   "/enhanced-dashboard/page": "app/enhanced-dashboard/page.js",
@@ -21,9 +21,9 @@
   "/test-form/page": "app/test-form/page.js",
   "/signup/page": "app/signup/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/analytics/page": "app/analytics/page.js",
-  "/login/page": "app/login/page.js",
   "/inventory/page": "app/inventory/page.js",
+  "/login/page": "app/login/page.js",
+  "/analytics/page": "app/analytics/page.js",
   "/pos/page": "app/pos/page.js",
   "/products/page": "app/products/page.js"
 }
