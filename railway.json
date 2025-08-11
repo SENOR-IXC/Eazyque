@@ -3,7 +3,7 @@
     "builder": "nixpacks"
   },
   "deploy": {
-    "startCommand": "npm run start:api",
+    "startCommand": "./deploy-railway.sh",
     "restartPolicyType": "on_failure"
   }
 }
