@@ -11,11 +11,11 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/health",
       "dest": "apps/api/src/index.ts"
     },
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "apps/api/src/index.ts"
     }
   ],
