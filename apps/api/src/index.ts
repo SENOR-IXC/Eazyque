@@ -63,8 +63,19 @@ app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Health check endpoint
+// Health check endpoint - Simple and robust for Railway
 app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'EazyQue API Server is running',
+    timestamp: new Date().toISOString(),
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Detailed health check endpoint
+app.get('/health/detailed', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'EazyQue API Server is running',
@@ -181,12 +192,13 @@ app.use('*', (req, res) => {
 
 const PORT = process.env.PORT || 5001; // Changed from 5000 to avoid macOS conflicts
 
-server.listen(PORT, () => {
+server.listen(Number(PORT), () => {
   console.log(`🚀 EazyQue API Server running on port ${PORT}`);
   console.log(`🇮🇳 Market: India - GST Compliant`);
   console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   console.log(`🔗 Available at: http://localhost:${PORT}`);
+  console.log(`✅ Server ready for connections`);
 });
 
 export default app;
