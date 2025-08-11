@@ -3,7 +3,7 @@
     "builder": "nixpacks"
   },
   "deploy": {
-    "startCommand": "cd apps/api && npm start",
+    "startCommand": "npm run start:api",
     "healthcheckPath": "/health"
   }
 }
