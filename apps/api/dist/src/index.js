@@ -12,6 +12,7 @@ const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const dotenv_1 = __importDefault(require("dotenv"));
+const performance_1 = require("./middleware/performance");
 // Load environment variables
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -30,6 +31,9 @@ const io = new socket_io_1.Server(server, {
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
     }
 });
+// Performance monitoring middleware
+app.use(performance_1.performanceMonitor);
+app.use((0, performance_1.requestTimeout)(15000)); // 15 second timeout
 // Security middleware
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
@@ -43,19 +47,31 @@ app.use((0, cors_1.default)({
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
 }));
-// Rate limiting
+// Rate limiting with optimized settings
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.'
+    max: 200, // Increased from 100 to 200 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false
 });
 app.use('/api/', limiter);
 // Body parsing middleware
 app.use((0, compression_1.default)());
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
-// Health check endpoint
+// Health check endpoint - Simple and robust for Railway
 app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        message: 'EazyQue API Server is running',
+        timestamp: new Date().toISOString(),
+        port: PORT,
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+// Detailed health check endpoint
+app.get('/health/detailed', (req, res) => {
     res.json({
         status: 'OK',
         message: 'EazyQue API Server is running',
@@ -111,10 +127,16 @@ const auth_1 = __importDefault(require("./routes/auth"));
 const products_1 = __importDefault(require("./routes/products"));
 const orders_1 = __importDefault(require("./routes/orders"));
 const inventory_1 = __importDefault(require("./routes/inventory"));
+const dashboard_1 = __importDefault(require("./routes/dashboard"));
+const shops_1 = __importDefault(require("./routes/shops"));
+const analytics_1 = __importDefault(require("./routes/analytics"));
 app.use('/api/auth', auth_1.default);
 app.use('/api/products', products_1.default);
 app.use('/api/orders', orders_1.default);
 app.use('/api/inventory', inventory_1.default);
+app.use('/api/dashboard', dashboard_1.default);
+app.use('/api/shops', shops_1.default);
+app.use('/api/analytics', analytics_1.default);
 // Socket.IO connection handling
 io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);
@@ -152,13 +174,14 @@ app.use('*', (req, res) => {
         message: 'Route not found'
     });
 });
-const PORT = process.env.PORT || 5001; // Explicitly use port 5001
-server.listen(PORT, () => {
+const PORT = process.env.PORT || 5001; // Changed from 5000 to avoid macOS conflicts
+server.listen(Number(PORT), () => {
     console.log(`🚀 EazyQue API Server running on port ${PORT}`);
     console.log(`🇮🇳 Market: India - GST Compliant`);
     console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Health check: http://localhost:${PORT}/health`);
     console.log(`🔗 Available at: http://localhost:${PORT}`);
+    console.log(`✅ Server ready for connections`);
 });
 exports.default = app;
 //# sourceMappingURL=index.js.map

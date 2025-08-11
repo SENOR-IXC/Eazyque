@@ -101,31 +101,43 @@ router.post('/', auth_1.authMiddleware, auth_1.requireStaff, async (req, res) =>
         });
     }
 });
-// Get inventory records
+// Get inventory records with optimized queries
 router.get('/', auth_1.authMiddleware, async (req, res) => {
     try {
         const { shopId } = req.user;
         const { page = 1, limit = 20, productId } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
+        const take = Number(limit);
         const where = { shopId };
         if (productId) {
             where.productId = productId;
         }
+        // Use parallel execution for better performance
         const [inventoryRecords, total] = await Promise.all([
             database_1.prisma.inventory.findMany({
                 where,
-                include: {
+                select: {
+                    id: true,
+                    productId: true,
+                    quantity: true,
+                    minStockLevel: true,
+                    maxStockLevel: true,
+                    batchNumber: true,
+                    expiryDate: true,
+                    costPrice: true,
+                    lastUpdated: true,
                     product: {
                         select: {
                             name: true,
                             barcode: true,
-                            sellingPrice: true
+                            sellingPrice: true,
+                            category: true
                         }
                     }
                 },
                 orderBy: { lastUpdated: 'desc' },
                 skip,
-                take: Number(limit)
+                take
             }),
             database_1.prisma.inventory.count({ where })
         ]);
@@ -134,9 +146,9 @@ router.get('/', auth_1.authMiddleware, async (req, res) => {
             data: inventoryRecords,
             pagination: {
                 page: Number(page),
-                limit: Number(limit),
+                limit: take,
                 total,
-                pages: Math.ceil(total / Number(limit))
+                pages: Math.ceil(total / take)
             }
         });
     }
@@ -148,7 +160,7 @@ router.get('/', auth_1.authMiddleware, async (req, res) => {
         });
     }
 });
-// Get low stock products
+// Get low stock products with optimized query
 router.get('/low-stock', auth_1.authMiddleware, async (req, res) => {
     try {
         const { shopId } = req.user;
@@ -156,20 +168,26 @@ router.get('/low-stock', auth_1.authMiddleware, async (req, res) => {
         const lowStockProducts = await database_1.prisma.inventory.findMany({
             where: {
                 shopId,
-                quantity: {
-                    lte: Number(threshold)
-                }
+                quantity: { lte: Number(threshold) }
             },
-            include: {
+            select: {
+                id: true,
+                productId: true,
+                quantity: true,
+                minStockLevel: true,
+                maxStockLevel: true,
+                lastUpdated: true,
                 product: {
                     select: {
                         name: true,
                         barcode: true,
-                        sellingPrice: true
+                        sellingPrice: true,
+                        category: true
                     }
                 }
             },
-            orderBy: { quantity: 'asc' }
+            orderBy: { quantity: 'asc' },
+            take: 50 // Limit results for performance
         });
         res.json({
             success: true,
