@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "name": "eazyque-api-complete",
+  "builds": [
+    {
+      "src": "apps/api/api/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/apps/api/api/index.ts"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

@@ -137,6 +137,7 @@ import inventoryRoutes from './routes/inventory';
 import dashboardRoutes from './routes/dashboard';
 import shopRoutes from './routes/shops';
 import analyticsRoutes from './routes/analytics';
+import loyaltyRoutes from './routes/loyalty';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -145,6 +146,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/shops', shopRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/loyalty', loyaltyRoutes);
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
